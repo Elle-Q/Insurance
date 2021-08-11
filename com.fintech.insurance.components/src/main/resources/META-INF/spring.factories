@@ -1,0 +1,15 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.fintech.insurance.components.web.configuration.MicroWebAppConfigurer,\
+com.fintech.insurance.components.persist.configuration.FintechPersistConfiguration,\
+com.fintech.insurance.components.cache.configuration.RedisConfiguration,\
+com.fintech.insurance.components.web.configuration.GlobalExceptionHandler,\
+com.fintech.insurance.components.web.configuration.ExceptionProperties,\
+com.fintech.insurance.components.web.interceptor.FinanceDataInterceptor,\
+com.fintech.insurance.components.web.feign.MicroFeignClientConfiguration,\
+com.fintech.insurance.components.web.async.FInsuranceAsyncConfigurer,\
+com.fintech.insurance.components.web.interceptor.FInsuranceTimerInterceptor,\
+com.fintech.insurance.components.web.interceptor.FinanceDuplicateSubmitInterceptor,\
+com.fintech.insurance.components.web.context.FInsuranceApplicationContext,\
+com.fintech.insurance.components.web.CommonComponents,\
+com.fintech.insurance.components.persist.configuration.FInsuranceAtomikosJtaConfiguration,\
+com.fintech.insurance.components.web.interceptor.FInsuranceRequestLogInterceptor

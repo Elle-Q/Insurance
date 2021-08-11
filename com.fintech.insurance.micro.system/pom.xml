@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>com.fintech</groupId>
+        <artifactId>com.fintech.insurance.micro.parent</artifactId>
+        <version>1.0.0</version>
+        <relativePath>../com.fintech.insurance.micro.parent/pom.xml
+        </relativePath> <!-- lookup parent from repository -->
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>com.fintech.insurance.micro.system</artifactId>
+    <version>${insurance.micro.system.version}</version>
+    <packaging>jar</packaging>
+
+    <name>com.fintech.insurance.micro.system</name>
+    <description>System Micro service Project for Insurance</description>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>${spotify.version}</version>
+                <executions>
+                    <execution>
+                        <id>build-image</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>tag-image</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>tag</goal>
+                        </goals>
+                        <configuration>
+                            <image>${project.groupId}/micro-service-system</image>
+                            <newName>${fintech.docker.registry}/${project.groupId}/micro-service-system:${target.branch}</newName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>push-image</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>push</goal>
+                        </goals>
+                        <configuration>
+                            <imageName>${fintech.docker.registry}/${project.groupId}/micro-service-system:${target.branch}</imageName>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <!-- 注意imageName一定要是符合正则[a-z0-9-_.]的，否则构建不会成功 -->
+                    <!-- 详见：https://github.com/spotify/docker-maven-plugin    Invalid repository name ... only [a-z0-9-_.] are allowed-->
+                    <imageName>${project.groupId}/micro-service-system</imageName>
+                    <dockerDirectory>${project.basedir}/src/main/docker</dockerDirectory>
+                    <resources>
+                        <resource>
+                            <targetPath>/</targetPath>
+                            <directory>${project.build.directory}</directory>
+                            <include>${project.build.finalName}.jar</include>
+                        </resource>
+                    </resources>
+                    <serverId>${fintech.docker.registry.serverId}</serverId>
+                    <registryUrl>https://${fintech.docker.registry}</registryUrl>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

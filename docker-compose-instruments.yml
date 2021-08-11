@@ -1,0 +1,102 @@
+version: '3'
+
+services:
+  finance_redis:
+    container_name: finance_redis
+    image: redis:3.2.11
+    restart: always
+    volumes:
+      - ./com.fintech.insurance.database/redis:/data
+    expose:
+      - "6379"
+
+  finance_mysql:
+    container_name: finance_mysql
+    image: sameersbn/mysql
+    restart: always
+    volumes:
+      - ./com.fintech.insurance.database/mysql:/var/lib/mysql
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "3306:3306"
+    environment:
+      - DB_NAME=insurance_finance
+      - MYSQL_ROOT_PASSWORD=O4Bvjdx7yMTH5NkYxCeipZ08VArvKfhR
+      - MYSQL_CHARSET=utf8mb4
+      - MYSQL_COLLATION=utf8mb4_bin
+      - DB_REMOTE_ROOT_NAME=root
+      - DB_REMOTE_ROOT_PASS=O4Bvjdx7yMTH5NkYxCeipZ08VArvKfhR
+      - DB_REMOTE_ROOT_HOST=%
+
+  finance_phpmyadmin:
+    container_name: finance_phpmyadmin
+    image: phpmyadmin/phpmyadmin:4.7.5-1
+    restart: always
+    links:
+      - finance_mysql:db
+    depends_on:
+      - finance_mysql
+    ports:
+      - "3030:80"
+
+  discovery:
+    container_name: discovery
+    image: com.fintech/discovery-server
+    restart: always
+    volumes:
+      - ./log:/data/log
+      - ./transaction-logs:/data/transaction-logs
+    ports:
+      - "1111:1111"
+    command: java -Xmx512m -Duser.timezone=GMT+8 -Dspring.profiles.active=test -jar app.jar
+
+  config_server:
+    container_name: config_server
+    image: com.fintech/config-server
+    restart: always
+    depends_on:
+      - discovery
+    links:
+      - discovery:discovery
+    volumes:
+      - ./log:/data/log
+      - ./transaction-logs:/data/transaction-logs
+    ports:
+      - "8888:8888"
+    command: java -Xmx512m -Duser.timezone=GMT+8 -Dspring.profiles.active=test -jar app.jar
+
+  authz_server:
+    container_name: authz_server
+    image: com.fintech/authz-server
+    restart: always
+    depends_on:
+      - discovery
+      - finance_mysql
+      - finance_redis
+    links:
+      - finance_mysql:finance_mysql
+      - finance_redis:finance_redis
+      - discovery:discovery
+    volumes:
+      - ./log:/data/log
+      - ./transaction-logs:/data/transaction-logs
+    expose:
+      - "9093"
+    command: java -Xmx512m -Duser.timezone=GMT+8 -Dspring.profiles.active=test -jar app.jar
+
+  gateway_server:
+    container_name: gateway_server
+    image: com.fintech/gateway-server
+    restart: always
+    depends_on:
+      - discovery
+      - authz_server
+    links:
+      - discovery:discovery
+      - authz_server:authz_server
+    volumes:
+      - ./log:/data/log
+      - ./transaction-logs:/data/transaction-logs
+    ports:
+      - "7073:7073"
+    command: java -Xmx512m -Duser.timezone=GMT+8 -Dspring.profiles.active=test -jar app.jar

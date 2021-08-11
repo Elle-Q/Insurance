@@ -1,0 +1,105 @@
+server:
+  port: 7073
+
+spring:
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+  application:
+    name: gateway-server
+
+fintech:
+  insurance:
+    security:
+      authz-service-id: authz-server
+      ip-black-list:
+    authz-error-mapping:
+      error_uri: 100201
+      invalid_request: 100202
+      invalid_client: 100203
+      invalid_grant: 100204
+      unauthorized_client: 100205
+      unsupported_grant_type: 100206
+      invalid_scope: 100207
+      insufficient_scope: 100208
+      invalid_token: 100209
+      redirect_uri_mismatch: 100210
+      unsupported_response_type: 100211
+      access_denied: 100212
+      unauthorized: 100200
+
+zuul:
+  routes:
+    authz-server:
+      path: /uaa/**
+      stripPrefix: true
+    insurance-micro-management:
+      path: /management/**
+      stripPrefix: false
+    insurance-micro-thirdparty:
+      path: /thirdparty/**
+      stripPrefix: false
+    insurance-micro-wechatcustomer:
+      path: /wechat/customer/**
+      stripPrefix: false
+    insurance-micro-wechatchannel:
+      path: /wechat/channel/**
+      stripPrefix: false
+  ignored-services: '*'
+  host:
+    connect-timeout-millis: 60000
+    socket-timeout-millis: 60000
+  force-original-query-string-encoding: true
+  add-proxy-headers: true
+  #必须设置，否则路由之后包括Cookie, Set-Cookie以及Authorization头的信息将会丢失
+  sensitive-headers:
+  #重定向问题
+  add-host-header: true
+  retryable: false
+  ignore-security-headers: false
+  ribbon-isolation-strategy: thread
+
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 100000
+        timeout:
+          enabled: true
+
+ribbon:
+  ReadTimeout: 60000
+  ConnectTimeout: 60000
+
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://${eureka.instance.hostname:127.0.0.1}:1111/eureka/
+    fetch-registry: true
+    registry-fetch-interval-seconds: 3
+  instance:
+      prefer-ip-address: true
+
+security:
+  basic:
+    enabled: false
+  oauth2:
+    client:
+      client-id: gateway-server
+      client-secret: X33OgMZLJhiu70ZFZMIn7GYBjElMVQYf
+      access-token-uri: http://localhost:9093/oauth/token
+      scope: all
+      user-authorization-uri: http://localhost:9093/oauth/authorize
+      authentication-scheme: header
+    resource:
+      user-info-uri: http://localhost:9093/users/current
+      prefer-token-info: false
+
+logging:
+  level:
+    root: info
+  file: log/${spring.application.name}.log
+
+

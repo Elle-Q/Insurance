@@ -1,0 +1,19 @@
+车贷分期借款合同
+
+{
+  "userAccountId": "43068119820721061X",
+  "title": "11111111111111",
+  "contractFileNum": "1898386646684926564",
+  "userSignLocations":[{"pageNum":7, "xaxis": 0.7, "yaxis": "0.45"}],
+  "enterpriseSignLocations":[{"pageNum":7, "xaxis": 0.64, "yaxis": "0.16"}]
+}
+
+
+车贷分期服务合同
+{
+  "userAccountId": "43068119820721061X",
+  "title": "11111111111111",
+  "contractFileNum": "1898378590936891941",
+  "userSignLocations":[{"pageNum":4, "xaxis": 0.25, "yaxis": "0.787"}],
+  "enterpriseSignLocations":[{"pageNum":4, "xaxis": 0.6, "yaxis": "0.79"}]
+}

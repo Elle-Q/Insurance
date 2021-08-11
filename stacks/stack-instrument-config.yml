@@ -1,0 +1,60 @@
+# ****************************
+# @Author Sean Zhang
+# @Since 2018-01-05
+# @Copyright XLB Develop Team
+# ****************************
+# Base core services deployment definition
+
+version: "3"
+
+# please note that you must replace following environment values for deploying the stack
+# 01. EUREKA_SERVER_IMAGE_TAG 注册中心服务器镜像的Tag值
+# 02. CONFIG_SERVER_IMAGE_TAG 配置服务器镜像的Tag值
+# 03. GATEWAY_SERVER_IMAGE_TAG 服务网关服务器镜像的Tag值
+
+# stack name
+# STACK_CS
+
+services:
+
+  # 配置中心
+  configurationServer:
+    image: harbor.i-nomi.com/com.fintech/config-server:${CONFIG_SERVER_IMAGE_TAG}
+    restart: always
+    volumes:
+      - application-logs:/data/log
+      - transaction-logs:/data/transaction-logs
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - fintech_insurance_overlay
+    environment:
+      - DISCOVERY_SERVICE_REG_URL=http://discovery:1111/eureka/
+    ports:
+      - 8888:8888
+    command: java -Xmx512m -Duser.timezone=GMT+8 -Dspring.profiles.active=product -jar app.jar
+    deploy:
+      labels:
+        app: configuration
+        env: product
+        category: instrument
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 2
+      placement:
+        constraints:
+          - node.role == worker
+          - node.labels.node_env == product
+
+networks:
+  fintech_insurance_overlay:
+    external:
+      name: fintech_insurance_overlay
+
+volumes:
+  application-logs:
+    external: true
+  transaction-logs:
+    external: true

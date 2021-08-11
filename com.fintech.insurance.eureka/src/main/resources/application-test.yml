@@ -1,0 +1,11 @@
+eureka:
+  instance:
+    hostname: discovery
+    instance-id: ${spring.application.name}:${random.int}
+  server:
+    enable-self-preservation: true
+
+logging:
+  level:
+    root: warn
+    org.springframework: info

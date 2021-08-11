@@ -1,0 +1,7 @@
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://${INSURANCE_FINANCE_DISCOVERY_HOST:discovery}:${INSURANCE_FINANCE_DISCOVERY_PORT:1111}/eureka/
+
+logging:
+  level: error

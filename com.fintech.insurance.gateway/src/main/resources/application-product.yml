@@ -1,0 +1,17 @@
+security:
+  oauth2:
+    client:
+      access-token-uri: http://${AUTHZ_SERVER_SERVICE_NAME:authz-server}:9093/oauth/token
+      user-authorization-uri: http://${AUTHZ_SERVER_SERVICE_NAME:authz-server}:9093/oauth/authorize
+    resource:
+      user-info-uri: http://${AUTHZ_SERVER_SERVICE_NAME:authz-server}:9093/users/current
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${DISCOVERY_SERVICE_REG_URL}
+
+logging:
+  level:
+    root: error
+    org.springframework: off

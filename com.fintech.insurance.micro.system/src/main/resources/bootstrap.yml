@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: insurance-micro-system
+  cloud:
+      config:
+        discovery:
+          enabled: true
+          serviceId: config-server
+      profile: ${spring.profiles.active:dev}
+
+management:   #spring cloud 后台权限控制, 通过host/refresh (POST)进行配置的更新
+  security:
+    enabled: false
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://${eureka.instance.hostname:127.0.0.1}:1111/eureka/
+    fetch-registry: true
+    registry-fetch-interval-seconds: 5
+  instance:
+    prefer-ip-address: true
+
+logging:
+  level:
+    root: info
+  file: log/${spring.application.name}.log
+
+
+

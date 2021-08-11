@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>com.fintech</groupId>
+        <artifactId>com.fintech.insurance</artifactId>
+        <version>1.0.0</version>
+        <relativePath>../</relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>com.fintech.insurance.api</artifactId>
+    <version>${insurance.api.version}</version>
+
+    <name>com.fintech.insurance.api</name>
+    <description>Micro Service API Project for Insurance</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.fintech</groupId>
+            <artifactId>com.fintech.insurance.commons</artifactId>
+            <version>${insurance.commons.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fintech</groupId>
+            <artifactId>com.fintech.insurance.dto</artifactId>
+            <version>${insurance.dto.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fintech</groupId>
+            <artifactId>com.fintech.insurance.commons</artifactId>
+            <version>${insurance.commons.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fintech</groupId>
+            <artifactId>com.fintech.insurance.commons</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <!-- 微信支付 -->
+        <dependency>
+            <groupId>com.github.binarywang</groupId>
+            <artifactId>weixin-java-pay</artifactId>
+            <version>${weixin.tools.version}</version>
+        </dependency>
+        <!-- 微信公众号 -->
+        <dependency>
+            <groupId>com.github.binarywang</groupId>
+            <artifactId>weixin-java-mp</artifactId>
+            <version>${weixin.tools.version}</version>
+        </dependency>
+        <!-- 微信企业号 -->
+        <dependency>
+            <groupId>com.github.binarywang</groupId>
+            <artifactId>weixin-java-cp</artifactId>
+            <version>${weixin.tools.version}</version>
+        </dependency>
+        <!-- 微信基础包 -->
+        <dependency>
+            <groupId>com.github.binarywang</groupId>
+            <artifactId>weixin-java-common</artifactId>
+            <version>${weixin.tools.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <testSourceDirectory>src/test/java</testSourceDirectory>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+            </testResource>
+        </testResources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

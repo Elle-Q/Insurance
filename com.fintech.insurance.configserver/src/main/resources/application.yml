@@ -1,0 +1,31 @@
+server:
+  port: 8888
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://${eureka.instance.hostname:127.0.0.1}:1111/eureka/
+    fetch-registry: true
+    registry-fetch-interval-seconds: 5
+  instance:
+      prefer-ip-address: true
+
+spring:
+  cloud:
+   config:
+    server:
+     git:
+      uri: http://git.xinlebao.com/nomi/config-repo.git
+      searchPaths: nomi
+      username: configuration_admin
+      password: ipay@123!
+  application:
+    name: config-server
+
+logging:
+  level:
+    root: info
+  file: log/${spring.application.name}.log
+
+
+#$ curl localhost:8888/{application}/{profile}/{label-branch/commit-id}

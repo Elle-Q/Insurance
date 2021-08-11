@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>com.fintech.insurance</artifactId>
+        <groupId>com.fintech</groupId>
+        <version>1.0.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>com.fintech.insurance.service-agg</artifactId>
+    <version>${insurance.service-agg.version}</version>
+
+    <name>com.fintech.insurance.api</name>
+    <description>Service Aggregator Project for Insurance</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.fintech</groupId>
+            <artifactId>com.fintech.insurance.commons</artifactId>
+            <version>${insurance.commons.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fintech</groupId>
+            <artifactId>com.fintech.insurance.dto</artifactId>
+            <version>${insurance.dto.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fintech</groupId>
+            <artifactId>com.fintech.insurance.commons</artifactId>
+            <version>${insurance.commons.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fintech</groupId>
+            <artifactId>com.fintech.insurance.vo</artifactId>
+            <version>${insurance.vo.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fintech</groupId>
+            <artifactId>com.fintech.insurance.api</artifactId>
+            <version>${insurance.api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fintech</groupId>
+            <artifactId>com.fintech.insurance.components</artifactId>
+            <version>${insurance.components.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+    </dependencies>
+
+
+</project>

@@ -1,0 +1,77 @@
+server:
+  port: 501
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://127.0.0.1:10050/eureka/
+
+spring:
+  application:
+    name: micro-order
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    # 数据库连接池Druid
+    druid:
+      url: jdbc:mysql://127.0.0.1:3306/vans?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=GMT%2B8
+      #driver-class-name: com.mysql.cj.jdbc.Driver
+      username: root
+      password: 123654
+      # 控制台
+      stat-view-servlet:
+        login-username: admin
+        login-password: admin
+        enabled: true
+        url-pattern: /druid/*
+        # ��ʼ�����Ӵ�С   Ĭ�ϣ�0
+      initial-size: 5
+      # ��С���������� Ĭ�ϣ�0
+      min-idle: 5
+      # ���������  Ĭ�ϣ�8
+      max-active: 20
+      # ��ȡ���ӵȴ���ʱ��ʱ��(����) Ĭ�ϣ�-1
+      max-wait: 60000
+      # ��ѯ��ʱʱ��(��)
+      query-timeout: 90
+      # ������������Ƿ���Ч��sql��Ҫ����һ����ѯ���
+      validation-query: SELECT 1 FROM DUAL
+      # ��������ʱ������ӿ����� Ĭ�ϣ�false
+      test-on-borrow: false
+      # �黹���Ӽ�� Ĭ�ϣ�false
+      test-on-return: false
+      # ��ʱ�Ƿ������ӿ�����
+      test-while-idle: true
+      # ���ü����òŽ���һ�μ�⣬�����Ҫ�رյĿ������� (����)
+      time-between-eviction-runs-millis: 60000
+      # ����һ�������ڳ�����С�����ʱ��(���룬Ĭ��30����)
+      min-evictable-idle-time-millis: 300000
+      # ͨ�������ķ�ʽ������չ��������õĲ���У����ͳ���õ�filter:stat����־�õ�filter:log4j������sqlע���filter:wall
+      filters: stat,wall,slf4j
+      # ��SQL��¼ https://github.com/alibaba/druid/wiki/%E9%85%8D%E7%BD%AE_StatFilter
+      filter:
+        stat:
+          log-slow-sql: true
+          slow-sql-millis: 2000
+          db-type: mysql
+          # SQL�ϲ� Ĭ�ϣ�false
+          merge-sql: false
+        wall:
+          config:
+            # �Ƿ�����delete���
+            delete-allow: true
+            drop-table-allow: false
+          enabled: true
+          db-type: mysql
+      # �Ƿ񻺴�PreparedStatement. PSCache��֧���α�����ݿ����������޴󣬱���˵oracle.��mysql�½���ر�.
+      pool-prepared-statements: false
+      # ÿ��������PSCache�Ĵ�С
+      max-pool-prepared-statement-per-connection-size: 20
+      # �ϲ����DruidDataSource�ļ������
+      use-global-data-source-stat: true
+#mybatis-plus:
+#  mapper-locations: classpath*:/mybatis-mappers/*
+#  # MyBaits ������ɨ��·����ͨ�������Կ��Ը����е���ע�������ע����� Mapper ��Ӧ�� XML �ļ��п���ֱ��ʹ��������������ʹ��ȫ�޶�������
+#  # ���ݿ����ʵ������շ������Զ�ת��
+#  configuration:
+#    map-underscore-to-camel-case: true
+

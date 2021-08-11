@@ -1,0 +1,9 @@
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${DISCOVERY_SERVICE_REG_URL}
+
+logging:
+  level:
+    root: error
+    org.springframework: off

@@ -1,0 +1,13 @@
+eureka:
+  instance:
+    hostname: ${DISCOVERY_HOST:localhost}
+    instance-id: ${spring.application.name}-${random.int}
+  client:
+    serviceUrl:
+      defaultZone: ${DISCOVERY_SERVICE_REG_URL:http://localhost:1111/eureka/}
+    register-with-eureka: true
+
+logging:
+  level:
+    root: error
+    org.springframework: off

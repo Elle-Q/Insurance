@@ -1,0 +1,163 @@
+version: '3'
+
+services:
+  insurance_micro_system:
+    container_name: insurance_micro_system
+    image: com.fintech/micro-service-system
+    restart: always
+    external_links:
+      - finance_redis:finance_redis
+      - finance_mysql:finance_mysql
+      - discovery:discovery
+    volumes:
+      - ./log:/data/log
+      - ./transaction-logs:/data/transaction-logs
+    expose:
+      - "8095"
+    command: java -Xmx2048m -Duser.timezone=GMT+8 -Dspring.profiles.active=test -jar app.jar
+
+  insurance_micro_biz:
+    container_name: insurance_micro_biz
+    image: com.fintech/micro-service-biz
+    restart: always
+    external_links:
+      - discovery:discovery
+      - finance_mysql:finance_mysql
+      - finance_redis:finance_redis
+    volumes:
+      - ./log:/data/log
+      - ./transaction-logs:/data/transaction-logs
+    expose:
+      - "8091"
+    command: java -Xmx2048m -Duser.timezone=GMT+8 -Dspring.profiles.active=test -jar app.jar
+
+  insurance_micro_customer:
+    container_name: insurance_micro_customer
+    image: com.fintech/micro-service-customer
+    restart: always
+    external_links:
+      - discovery:discovery
+      - finance_mysql:finance_mysql
+      - finance_redis:finance_redis
+    volumes:
+      - ./log:/data/log
+      - ./transaction-logs:/data/transaction-logs
+    expose:
+      - "8092"
+    command: java -Xmx1024m -Duser.timezone=GMT+8 -Dspring.profiles.active=test -jar app.jar
+
+  insurance_micro_finance:
+    container_name: insurance_micro_finance
+    image: com.fintech/micro-service-finance
+    restart: always
+    external_links:
+      - discovery:discovery
+      - finance_mysql:finance_mysql
+      - finance_redis:finance_redis
+    volumes:
+      - ./log:/data/log
+      - ./transaction-logs:/data/transaction-logs
+    expose:
+      - "8093"
+    command: java -Xmx1024m -Duser.timezone=GMT+8 -Dspring.profiles.active=test -jar app.jar
+
+  insurance_micro_support:
+    container_name: insurance_micro_support
+    image: com.fintech/micro-service-support
+    restart: always
+    external_links:
+      - discovery:discovery
+      - finance_mysql:finance_mysql
+      - finance_redis:finance_redis
+    volumes:
+      - ./log:/data/log
+      - ./transaction-logs:/data/transaction-logs
+    expose:
+      - "8094"
+    command: java -Xmx1024m -Duser.timezone=GMT+8 -Dspring.profiles.active=test -jar app.jar
+
+  insurance_micro_thirdparty:
+    container_name: insurance_micro_thirdparty
+    image: com.fintech/micro-service-thirdparty
+    restart: always
+    external_links:
+      - discovery:discovery
+      - finance_redis:finance_redis
+    volumes:
+      - ./log:/data/log
+      - ./transaction-logs:/data/transaction-logs
+    expose:
+      - "8096"
+    command: java -Xmx1024m -Duser.timezone=GMT+8 -Dspring.profiles.active=test -jar app.jar
+
+  insurance_micro_retrieval:
+    container_name: insurance_micro_retrieval
+    image: com.fintech/micro-service-retrieval
+    restart: always
+    external_links:
+      - discovery:discovery
+      - finance_redis:finance_redis
+      - finance_mysql:finance_mysql
+    volumes:
+      - ./log:/data/log
+      - ./transaction-logs:/data/transaction-logs
+    expose:
+      - "8099"
+    command: java -Xmx1024m -Duser.timezone=GMT+8 -Dspring.profiles.active=test -jar app.jar
+
+  insurance_micro_management:
+    container_name: insurance_micro_management
+    image: com.fintech/micro-service-management
+    restart: always
+    external_links:
+      - discovery:discovery
+    volumes:
+      - ./log:/data/log
+      - ./transaction-logs:/data/transaction-logs
+    expose:
+      - "8001"
+    command: java -Xmx1024m -Duser.timezone=GMT+8 -Dspring.profiles.active=test -jar app.jar
+
+
+  insurance_micro_wechat_channel:
+    container_name: insurance_micro_wechat_channel
+    image: com.fintech/micro-service-wechat-channel
+    restart: always
+    external_links:
+      - discovery:discovery
+      - finance_redis:finance_redis
+    volumes:
+      - ./log:/data/log
+      - ./transaction-logs:/data/transaction-logs
+    expose:
+      - "8002"
+    command: java -Xmx512m -Duser.timezone=GMT+8 -Dspring.profiles.active=test -jar app.jar
+
+  insurance_micro_wechat_customer:
+    container_name: insurance_micro_wechat_customer
+    image: com.fintech/micro-service-wechat-customer
+    restart: always
+    external_links:
+      - discovery:discovery
+      - finance_redis:finance_redis
+    volumes:
+      - ./log:/data/log
+      - ./transaction-logs:/data/transaction-logs
+    expose:
+      - "8003"
+    command: java -Xmx512m -Duser.timezone=GMT+8 -Dspring.profiles.active=test -jar app.jar
+
+  insurance_micro_timer:
+    container_name: insurance_micro_timer
+    image: com.fintech/micro-service-timer
+    restart: always
+    external_links:
+      - discovery:discovery
+      - finance_redis:finance_redis
+      - finance_mysql:finance_mysql
+    volumes:
+      - ./log:/data/log
+      - ./transaction-logs:/data/transaction-logs
+    expose:
+      - "8010"
+    command: java -Xmx1024m -Duser.timezone=GMT+8 -Dspring.profiles.active=test -jar app.jar

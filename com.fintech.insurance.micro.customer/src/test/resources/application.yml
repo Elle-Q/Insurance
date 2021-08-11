@@ -1,0 +1,53 @@
+server:
+  port: 8092
+
+fintech:
+  web: # fastjson SerializerFeatures, the name of SerializerFeatures enum
+    fastjson:
+      enabled: true
+      serializerFeatures: PrettyFormat,WriteMapNullValue
+
+
+spring:
+  session: # Session Configuration
+      store-type: none
+  datasource:  # Datasource Configuration
+    url: jdbc:mysql://192.168.3.103:3306/insurance_finance?characterEncoding=UTF8&pinGlobalTxToPhysicalConnection=true
+    username: root
+    password: ipay@test
+    driver-class-name: com.mysql.jdbc.Driver
+    platform: mysql
+    type: com.alibaba.druid.pool.DruidDataSource
+    initialSize: 10
+    minIdle: 10
+    maxActive: 20
+    maxWait: 60000
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 30000
+    validationQuery: SELECT 'x' from dual
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    poolPreparedStatements: true
+    maxPoolPreparedStatementPerConnectionSize: 20
+    filters: stat,wall,slf4j
+    connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=2000
+  jpa:  # JPA Configuration
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL5Dialect
+        format_sql: true
+    hibernate:
+          ddl-auto: none
+  redis: # Redis Configuration
+      database: 1
+      host: 127.0.0.1
+      port: 6379
+      timeout: 2000
+      pool:
+        max-active: 8
+        max-idle: 8
+        max-wait: 1
+        min-idle: 0
+      ssl: false

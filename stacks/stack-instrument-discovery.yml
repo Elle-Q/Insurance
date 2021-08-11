@@ -1,0 +1,102 @@
+# ****************************
+# @Author Sean Zhang
+# @Since 2018-01-05
+# @Copyright XLB Develop Team
+# ****************************
+# Base core services deployment definition
+
+version: "3"
+
+# please note that you must replace following environment values for deploying the stack
+# 01. EUREKA_SERVER_IMAGE_TAG 注册中心服务器镜像的Tag值
+# 02. CONFIG_SERVER_IMAGE_TAG 配置服务器镜像的Tag值
+# 03. GATEWAY_SERVER_IMAGE_TAG 服务网关服务器镜像的Tag值
+
+# stack name
+# STACK_DS
+
+services:
+
+  # 服务的注册中心部署两个实例节点（不推荐自动扩容）
+  # 注册中心节点1
+  discovery01:
+    image: harbor.i-nomi.com/com.fintech/discovery-server:${EUREKA_SERVER_IMAGE_TAG}
+    restart: always
+    volumes:
+      - application-logs:/data/log
+      - transaction-logs:/data/transaction-logs
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      fintech_insurance_overlay:
+        aliases:
+          - discovery
+    environment:
+      - DISCOVERY_HOST=discovery01
+      - DISCOVERY_SERVICE_REG_URL=http://discovery02:1111/eureka/
+      - FINSURANCE_DISCOVERY_APP_NAME=insurance-eureka-01
+    ports:
+      - 1111:1111
+    command: java -Xmx256m -Duser.timezone=GMT+8 -Dspring.profiles.active=product -jar app.jar
+    deploy:
+      labels:
+        app: discovery
+        env: product
+        category: instrument
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 2
+      placement:
+        constraints:
+          - node.role == worker
+          - node.labels.node_env == product
+          - node.labels.node_number == 1
+
+  # 注册中心节点2
+  discovery02:
+    image: harbor.i-nomi.com/com.fintech/discovery-server:${EUREKA_SERVER_IMAGE_TAG}
+    restart: always
+    volumes:
+      - application-logs:/data/log
+      - transaction-logs:/data/transaction-logs
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      fintech_insurance_overlay:
+        aliases:
+          - discovery
+    environment:
+      - DISCOVERY_HOST=discovery02
+      - DISCOVERY_SERVICE_REG_URL=http://discovery01:1111/eureka/
+      - FINSURANCE_DISCOVERY_APP_NAME=insurance-eureka-02
+    ports:
+      - 1112:1111
+    command: java -Xmx256m -Duser.timezone=GMT+8 -Dspring.profiles.active=product -jar app.jar
+    deploy:
+      labels:
+        app: discovery
+        env: product
+        category: instrument
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 2
+      placement:
+        constraints:
+          - node.role == worker
+          - node.labels.node_env == product
+          - node.labels.node_number == 2
+
+networks:
+  fintech_insurance_overlay:
+    external:
+      name: fintech_insurance_overlay
+
+volumes:
+  application-logs:
+    external: true
+  transaction-logs:
+    external: true

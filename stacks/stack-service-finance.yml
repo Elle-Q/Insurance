@@ -1,0 +1,84 @@
+# ****************************
+# @Author Sean Zhang
+# @Since 2018-01-05
+# @Copyright XLB Develop Team
+# ****************************
+# Business micro services deployment definition
+
+# stack name
+# STACK_MS_FIN
+
+version: "3"
+
+# please note that you must replace following environment values for deploying the stack
+# 01. FINANCE_SERVICE_IMAGE_TAG
+
+# please note that following environment values own default value, and you also can change the value if required
+# 01. INSURANCE_FINANCE_REDIS_HOST Redis缓存服务的地址，默认为localhost
+# 02. INSURANCE_FINANCE_REDIS_PORT Redis缓存服务的端口，默认为6379
+# 03. INSURANCE_FINANCE_REDIS_PASSWORD Redis缓存服务的密码
+# 04. INSURANCE_FINANCE_DB_HOST 数据库地址，默认为localhost
+# 05. INSURANCE_FINANCE_DB_PORT 数据库端口，默认为3306
+# 06. INSURANCE_FINANCE_DB_USER 数据库用户名，默认为root
+# 07. INSURANCE_FINANCE_DB_PASSWORD 数据库用户的密码
+# 08. INSURANCE_FINANCE_DB_NAME 数据库名称，默认为insurance_finance
+# 09. FINTECH_YJF_PARTNER_ID 易极付系统合作伙伴ID，默认为20171128020015349020
+# 10. FINTECH_YJF_PRIVATE_KEY 易极付系统API私钥，默认为please_change_your_private_key
+# 11. FINTECH_YJF_GATEWAY_URL 易极付网关URL，默认为https://api.yxtweb.com/gateway.html
+# 12. FINTECH_YJF_DEBT_NOTIFY_URL 易极付回调通知地址，默认为https://admin.i-nomi.com/api/management/bank-service/yjf/notification/debt
+
+services:
+
+  # 授权服务
+  insuranceMicroFinance:
+    image: harbor.i-nomi.com/com.fintech/micro-service-finance:${FINANCE_SERVICE_IMAGE_TAG}
+    restart: always
+    volumes:
+      - application-logs:/data/log
+      - transaction-logs:/data/transaction-logs
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - fintech_insurance_overlay
+    environment:
+      - DISCOVERY_SERVICE_REG_URL=http://discovery:1111/eureka/
+      - INSURANCE_FINANCE_REDIS_HOST=${INSURANCE_FINANCE_REDIS_HOST:-r-wz9309cefbfd4234.redis.rds.aliyuncs.com}
+      - INSURANCE_FINANCE_REDIS_PORT=${INSURANCE_FINANCE_REDIS_PORT:-6379}
+      - INSURANCE_FINANCE_REDIS_PASSWORD=${INSURANCE_FINANCE_REDIS_PASSWORD}
+      - INSURANCE_FINANCE_DB_HOST=${INSURANCE_FINANCE_DB_HOST:-rm-wz9ke69ou0n75aeqs.mysql.rds.aliyuncs.com}
+      - INSURANCE_FINANCE_DB_PORT=${INSURANCE_FINANCE_DB_PORT:-3306}
+      - INSURANCE_FINANCE_DB_USER=${INSURANCE_FINANCE_DB_USER:-nomi_product}
+      - INSURANCE_FINANCE_DB_PASSWORD=${INSURANCE_FINANCE_DB_PASSWORD}
+      - INSURANCE_FINANCE_DB_NAME=${INSURANCE_FINANCE_DB_NAME:-insurance_finance}
+      - FINTECH_YJF_PARTNER_ID=${FINTECH_YJF_PARTNER_ID:-20171128020015349020}
+      - FINTECH_YJF_PRIVATE_KEY=${FINTECH_YJF_PRIVATE_KEY:-please_change_your_private_key}
+      - FINTECH_YJF_GATEWAY_URL=${FINTECH_YJF_GATEWAY_URL:-https://api.yxtweb.com/gateway.html}
+      - FINTECH_YJF_DEBT_NOTIFY_URL=${FINTECH_YJF_DEBT_NOTIFY_URL:-https://admin.i-nomi.com/api/management/bank-service/yjf/notification/debt}
+    expose:
+      - 8093
+    command: java -Xmx512m -Duser.timezone=GMT+8 -Dspring.profiles.active=product -jar app.jar
+    deploy:
+      labels:
+        app: service-finance
+        env: product
+        category: business
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 2
+      placement:
+        constraints:
+          - node.role == worker
+          - node.labels.node_env == product
+
+networks:
+  fintech_insurance_overlay:
+    external:
+      name: fintech_insurance_overlay
+
+volumes:
+  application-logs:
+    external: true
+  transaction-logs:
+    external: true

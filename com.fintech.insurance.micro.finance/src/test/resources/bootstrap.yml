@@ -1,0 +1,81 @@
+server:
+  port: 8093
+  compression:
+    enabled: true
+
+fintech:
+  web: # fastjson SerializerFeatures, the name of SerializerFeatures enum
+    fastjson:
+      enabled: true
+      serializerFeatures: PrettyFormat,WriteMapNullValue,WriteEnumUsingToString
+  yjf:
+    partnerId: 20170821020000793831
+    privateKey: 6d4108e062023f8a38bd37a58738cf3d
+    gatewayUrl: http://merchantapi.yijifu.net/gateway.html
+    debtNotifiyUrl: http://nomi-admin.xinlebao.com/api/management/ext-callback/yjf/debt
+
+spring:
+  http:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+  session:  # Session Configuration
+    store-type: none
+  cloud:
+    config: # the config that allow the system properties or local app properties override the remote config properties
+      #overrideNone: true
+  datasource:  # Datasource Configuration
+    url: jdbc:mysql://192.168.3.103:3306/sample_insurance?characterEncoding=UTF8&pinGlobalTxToPhysicalConnection=true
+    username: root
+    password: ipay@test
+    driver-class-name: com.mysql.jdbc.Driver
+    platform: mysql
+    type: com.alibaba.druid.pool.DruidDataSource
+    initialSize: 10
+    minIdle: 10
+    maxActive: 20
+    maxWait: 28000
+    timeBetweenEvictionRunsMillis: 28000
+    minEvictableIdleTimeMillis: 28000
+    validationQuery: SELECT 'x' from dual
+    connectionInitSql: set names utf8mb4
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    poolPreparedStatements: true
+    maxPoolPreparedStatementPerConnectionSize: 20
+    filters: stat,wall,slf4j
+    connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=2000
+  jpa:  # JPA Configuration
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL5Dialect
+        format_sql: true
+  jta:
+    logDir: transaction-logs/atomikos-finance-log
+  redis: # Redis Configuration
+    database: 1
+    host: 127.0.0.1
+    port: 6379
+    timeout: 2000
+    pool:
+      max-active: 8
+      max-idle: 8
+      max-wait: 1
+      min-idle: 0
+    ssl: false
+
+hystrix:  # 关闭熔断
+  command:
+    default:
+      execution:
+        timeout:
+          enabled: false
+
+feign: # 关闭feign的熔断
+  hystrix:
+    enabled: false

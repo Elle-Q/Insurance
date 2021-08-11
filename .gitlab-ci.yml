@@ -1,0 +1,125 @@
+# 后端gitlab-ci编译、打包、镜像以及发布脚本
+
+# 所有任务开始前需要执行的准备脚本
+before_script:
+
+# 所有任务结束后需要执行的清理脚本
+after_script:
+
+# 定义stages，如果任何一个任务失败，则将当前提交标记为失败，并且后续阶段的所有任务将不被执行
+stages:
+  # 所有build阶段的任务并行执行
+  - build
+  # 如果所有build阶段的任务成功，则test阶段的任务并行执行
+  - test
+  # 如果所有test阶段的任务成功，则deploy阶段的任务并行执行（发布正式）
+  - deploy_product
+  # 发布测试
+  - deploy_test
+
+# 变量定义
+variables:
+  SCRIPT_AUTHOR: "zhanglei@xinlebao.com.cn"
+
+# 拉取代码
+pull_source_job:
+  stage: build
+  script:
+    - pwd
+    - echo $CI_COMMIT_REF_NAME
+    - git status
+
+# 编译项目且不生成docker镜像，由于检查代码编译性问题
+compile_source_job:
+  stage: build
+  except:
+    - develop
+    - master
+    - /^v\d{0,9}\.\d{0,9}\.\d{0,9}$/
+  script:
+    #仅仅编译打包项目
+    - mvn clean package -Dmaven.test.skip=true -DskipDocker
+
+# 编译项目并生成分支对应的docker镜像，上传到harbor.i-nomi.com
+build_image_job:
+  stage: build
+  only:
+    - /^v\d{0,9}\.\d{0,9}\.\d{0,9}$/
+  script:
+    # 编辑项目且推送镜像
+    - if [ ! -n "${DEPLOY_PRODUCT}" ]; then mvn clean install -Dmaven.test.skip=true -Dtarget.branch=$CI_COMMIT_REF_NAME; fi
+    # 编译完成后则清除在本机的编译产生的镜像
+    - if [ ! -n "${DEPLOY_PRODUCT}" ]; then docker rmi -f $(docker images | awk '/^com.fintech/ { print $3 }'); fi
+
+# 仅对版本标签有效，从镜像服务器拉取镜像并部署到docker swarm云环境中
+# 仅当部署正式环境生效，必须在trigger的请求中携带DEPLOY_PRODUCT标志为以及相关的微服务镜像标签即可
+# DEPLOY_PRODUCT: 布尔值，需要发布版本时将该标志位设置为true
+# EUREKA_SERVER_IMAGE_TAG
+# CONFIG_SERVER_IMAGE_TAG
+# GATEWAY_SERVER_IMAGE_TAG
+# THIRDPARTY_SERVICE_IMAGE_TAG
+# AUTHZ_SERVER_IMAGE_TAG
+# BIZ_SERVICE_IMAGE_TAG
+# CUSTOMER_SERVICE_IMAGE_TAG
+# FINANCE_SERVICE_IMAGE_TAG
+# RETRIEVAL_SERVICE_IMAGE_TAG
+# SUPPORT_SERVICE_IMAGE_TAG
+# SYSTEM_SERVICE_IMAGE_TAG
+# TIMER_SERVICE_IMAGE_TAG
+# WECHATCHANNEL_SERVICE_IMAGE_TAG
+# WECHATCUSTOMER_SERVICE_IMAGE_TAG
+# MANAGEMENT_SERVICE_IMAGE_TAG
+#
+# 请求样例:
+# http://git.xinlebao.com/api/v4/projects/84/ref/REF_NAME/trigger/pipeline?token=TOKEN&variables[DEPLOY_PRODUCT]=true
+# 注意修改REF_NAME和TOKEN值
+release_deployment_job:
+  stage: deploy_product
+  only:
+    - /^v\d{0,9}\.\d{0,9}\.\d{0,9}$/
+  script:
+    - if [ -n "${DEPLOY_PRODUCT}" ]; then echo "Start to deploy product environment"; else echo "Tag only, and no package will be refreshed to product environment"; fi
+    # 1. 发布服务注册中心
+    - if [ -n "${DEPLOY_PRODUCT}" ] && [ -n "${EUREKA_SERVER_IMAGE_TAG}" ]; then docker service update STACK_DS_discovery01 --image="harbor.i-nomi.com/com.fintech/discovery-server:${EUREKA_SERVER_IMAGE_TAG}"; fi
+    - if [ -n "${DEPLOY_PRODUCT}" ] && [ -n "${EUREKA_SERVER_IMAGE_TAG}" ]; then docker service update STACK_DS_discovery02 --image="harbor.i-nomi.com/com.fintech/discovery-server:${EUREKA_SERVER_IMAGE_TAG}" && sleep 20s; fi
+    # 2. 发布配置中心
+    - if [ -n "${DEPLOY_PRODUCT}" ] && [ -n "${CONFIG_SERVER_IMAGE_TAG}" ]; then docker service update STACK_CS_configurationServer --image="harbor.i-nomi.com/com.fintech/config-server:${CONFIG_SERVER_IMAGE_TAG}" && sleep 30s; fi
+    # 3. 发布服务网关
+    - if [ -n "${DEPLOY_PRODUCT}" ] && [ -n "${GATEWAY_SERVER_IMAGE_TAG}" ]; then docker service update STACK_GS_gatewayServer --image="harbor.i-nomi.com/com.fintech/gateway-server:${GATEWAY_SERVER_IMAGE_TAG}"; fi
+    # ******4. 发布微服务开始********
+    # 4.1 发布第三方微服务
+    - if [ -n "${DEPLOY_PRODUCT}" ] && [ -n "${THIRDPARTY_SERVICE_IMAGE_TAG}" ]; then docker service update STACK_MS_3RD_insuranceMicroThirdparty --image="harbor.i-nomi.com/com.fintech/micro-service-thirdparty:${THIRDPARTY_SERVICE_IMAGE_TAG}"; fi
+    # 4.2 发布授权服务
+    - if [ -n "${DEPLOY_PRODUCT}" ] && [ -n "${AUTHZ_SERVER_IMAGE_TAG}" ]; then docker service update STACK_MS_AUTH_authzServer --image="harbor.i-nomi.com/com.fintech/authz-server:${AUTHZ_SERVER_IMAGE_TAG}"; fi
+    # 4.3 发布核心业务服务
+    - if [ -n "${DEPLOY_PRODUCT}" ] && [ -n "${BIZ_SERVICE_IMAGE_TAG}" ]; then docker service update STACK_MS_BIZ_insuranceMicroBiz --image="harbor.i-nomi.com/com.fintech/micro-service-biz:${BIZ_SERVICE_IMAGE_TAG}"; fi
+    # 4.4 发布用户核心业务服务
+    - if [ -n "${DEPLOY_PRODUCT}" ] && [ -n "${CUSTOMER_SERVICE_IMAGE_TAG}" ]; then docker service update STACK_MS_CUST_insuranceMicroCustomer --image="harbor.i-nomi.com/com.fintech/micro-service-customer:${CUSTOMER_SERVICE_IMAGE_TAG}"; fi
+    # 4.5 发布财务核心业务服务
+    - if [ -n "${DEPLOY_PRODUCT}" ] && [ -n "${FINANCE_SERVICE_IMAGE_TAG}" ]; then docker service update STACK_MS_FIN_insuranceMicroFinance --image="harbor.i-nomi.com/com.fintech/micro-service-finance:${FINANCE_SERVICE_IMAGE_TAG}"; fi
+    # 4.6 发布报表复杂查询业务服务
+    - if [ -n "${DEPLOY_PRODUCT}" ] && [ -n "${RETRIEVAL_SERVICE_IMAGE_TAG}" ]; then docker service update STACK_MS_RET_insuranceMicroRetrieval --image="harbor.i-nomi.com/com.fintech/micro-service-retrieval:${RETRIEVAL_SERVICE_IMAGE_TAG}"; fi
+    # 4.7 发布支持核心业务服务
+    - if [ -n "${DEPLOY_PRODUCT}" ] && [ -n "${SUPPORT_SERVICE_IMAGE_TAG}" ]; then docker service update STACK_MS_SUP_insuranceMicroSupport --image="harbor.i-nomi.com/com.fintech/micro-service-support:${SUPPORT_SERVICE_IMAGE_TAG}"; fi
+    # 4.8 发布系统核心业务服务
+    - if [ -n "${DEPLOY_PRODUCT}" ] && [ -n "${SYSTEM_SERVICE_IMAGE_TAG}" ]; then docker service update STACK_MS_SYS_insuranceMicroSystem --image="harbor.i-nomi.com/com.fintech/micro-service-system:${SYSTEM_SERVICE_IMAGE_TAG}"; fi
+    # 4.9 发布定时器组件
+    - if [ -n "${DEPLOY_PRODUCT}" ] && [ -n "${TIMER_SERVICE_IMAGE_TAG}" ]; then docker service update STACK_MS_TIM_insuranceMicroTimer --image="harbor.i-nomi.com/com.fintech/micro-service-timer:${TIMER_SERVICE_IMAGE_TAG}"; fi
+    # ******4. 发布微服务结束********
+
+    # 5. 发布应用
+    # 5.1 发布渠道端
+    - if [ -n "${DEPLOY_PRODUCT}" ] && [ -n "${WECHATCHANNEL_SERVICE_IMAGE_TAG}" ]; then docker service update STACK_APP_CH_insuranceMicroWechatChannel --image="harbor.i-nomi.com/com.fintech/micro-service-wechat-channel:${WECHATCHANNEL_SERVICE_IMAGE_TAG}"; fi;
+    # 5.2 发布客户端
+    - if [ -n "${DEPLOY_PRODUCT}" ] && [ -n "${WECHATCUSTOMER_SERVICE_IMAGE_TAG}" ]; then docker service update STACK_APP_CUST_insuranceMicroWechatCustomer --image="harbor.i-nomi.com/com.fintech/micro-service-wechat-customer:${WECHATCUSTOMER_SERVICE_IMAGE_TAG}"; fi;
+    # 5.3 发布运营管理平台
+    - if [ -n "${DEPLOY_PRODUCT}" ] && [ -n "${MANAGEMENT_SERVICE_IMAGE_TAG}" ]; then docker service update STACK_APP_MGT_insuranceMicroManagement --image="harbor.i-nomi.com/com.fintech/micro-service-management:${MANAGEMENT_SERVICE_IMAGE_TAG}"; fi;
+
+# 发布测试环境
+test_deployment_job:
+  stage: deploy_test
+  only:
+    - develop
+  script:
+    - if [ -n "${DEPLOY_PRODUCT}" ]; then echo "demo deploy to test environment"; fi
+

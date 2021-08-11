@@ -1,0 +1,28 @@
+server:
+  port: 1111
+
+eureka:
+  instance:
+    hostname: localhost
+    instance-id: ${spring.application.name}
+  client:
+    #表示是否注册自身到eureka服务器
+    registerWithEureka: false
+    #是否从eureka服务器获取注册信息
+    fetchRegistry: false
+    #开启客户端存活状态监测
+    healthcheck:
+      enabled: true
+    serviceUrl:
+      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+  server:
+    enable-self-preservation: true
+
+spring:
+  application:
+    name: ${FINSURANCE_DISCOVERY_APP_NAME:insurance-eureka}
+
+logging:
+  level:
+    root: info
+  file: log/${eureka.instance.instance-id}.log

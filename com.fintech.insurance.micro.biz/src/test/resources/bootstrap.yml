@@ -1,0 +1,125 @@
+server:
+  port: 8091
+  compression:
+    enabled: true
+
+fintech:
+  web: # fastjson SerializerFeatures, the name of SerializerFeatures enum
+    fastjson:
+      enabled: true
+      serializerFeatures: PrettyFormat,WriteMapNullValue,WriteEnumUsingToString
+  export:
+    maxsize: 1000
+    fileType: xlsx
+
+spring:
+  http:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+  session:  # Session Configuration
+    store-type: none
+  cloud:
+    config: # the config that allow the system properties or local app properties override the remote config properties
+      #overrideNone: true
+  datasource:  # Datasource Configuration
+    url: jdbc:mysql://192.168.3.103:3306/sample_insurance?characterEncoding=UTF8&pinGlobalTxToPhysicalConnection=true
+    username: root
+    password: ipay@test
+    driver-class-name: com.mysql.jdbc.Driver
+    platform: mysql
+    type: com.alibaba.druid.pool.DruidDataSource
+    initialSize: 10
+    minIdle: 10
+    maxActive: 20
+    maxWait: 28000
+    timeBetweenEvictionRunsMillis: 28000
+    minEvictableIdleTimeMillis: 28000
+    validationQuery: SELECT 'x' from dual
+    connectionInitSql: set names utf8mb4
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    poolPreparedStatements: true
+    maxPoolPreparedStatementPerConnectionSize: 20
+    filters: stat,wall,slf4j
+    connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=2000
+  jpa:  # JPA Configuration
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL5Dialect
+        format_sql: true
+  jta:
+    logDir: transaction-logs/atomikos-biz-log
+  redis: # Redis Configuration
+    database: 1
+    host: 127.0.0.1
+    port: 6379
+    timeout: 2000
+    pool:
+      max-active: 8
+      max-idle: 8
+      max-wait: 1
+      min-idle: 0
+    ssl: false
+  mail:   #邮件使用SSL加密发送配置
+    host: smtp.ym.163.com
+    protocol: smtps
+    port: 994
+    username: data@xinlebao.com.cn
+    password: ipay@123!
+    properties:
+      mail:
+        smtps:
+          auth: true
+        smtp:
+          ssl:
+            enable: true
+        transport:
+          protocol: smtps
+
+
+hystrix:  # 关闭熔断
+  command:
+    default:
+      execution:
+        timeout:
+          enabled: false
+
+feign: # 关闭feign的熔断
+  hystrix:
+    enabled: false
+
+# 微信公众号配置
+weixin:
+  customer-client:
+    appid: wx72c48f3a703e86ff
+    requisition-detail-url: http://nomi-mp.xinlebao.com/#/customer/reqDetail?id=
+    mp-contract-list-url: http://nomi-mp.xinlebao.com/#/customer/myInstalment
+  channel-client:
+    appid: wxde361fc65775efb2
+    requisition-detail-url: http://nomi-mp.xinlebao.com/#/channel/reqDetail?id=
+    mp-contract-list-url: http://nomi-mp.xinlebao.com/#/channel/myInstalment
+  template-messages:
+    templates:
+      requisition-pass-channel-ntf-title: 您的申请单已审核通过，请尽快联系客户完成支付。
+      requisition-pass-customer-ntf-title: 尊敬的客户，您的申请单已审核通过，请尽快完成支付。
+      requisition-loaned-channel-ntf-title: 您申请的业务已成功放款。
+      requisition-loaned-channel-ntf-remark: 到账可能需要时间， 请告知客户耐心等待
+      requisition-loaned-customer-ntf-title: 您申请的业务已成功放款。
+      requisition-loaned-customer-ntf-remark: 到账可能需要时间， 请耐心等待
+      amount: "%s元"
+      bankcard-suffix: "尾号%s"
+      days: "%s天"
+      repayment-reminder-customer-ntf-title: 您有一笔还款即将到期，请保持卡内余额充足！
+      service-withhold-success-customer-ntf-title: 尊敬的客户，本次代扣支付成功。
+      repayment-withhold-success-customer-ntf-title: 尊敬的客户，您的分期还款代扣成功。
+      repayment-withhold-fail-customer-ntf-title: 您好，很抱歉您本次在诺米金服的还款失败！
+      repayment-withhold-fail-customer-ntf-remark: 请确保还款账户资金充足或检查账户状态，以便系统扣款成功。
+      repayment-overdue-customer-ntf-title: 尊敬的用户，您的借款已逾期。
+      repayment-overdue-customer-ntf-remark: 为避免退保，请及时还款。
+      repayment-overdue-amount: "%s元（其中滞纳金%s元）"
